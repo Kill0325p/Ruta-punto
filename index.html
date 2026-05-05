@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Logística Pro V5.4 - Borrado Global</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --bg: #f3f4f6; 
+            --card: #ffffff; 
+            --text: #1f2937; 
+            --border: #d1d5db;
+            --input-bg: #ffffff;
+        }
+        .dark { 
+            --bg: #111827; 
+            --card: #1f2937; 
+            --text: #f9fafb; 
+            --border: #4b5563;
+            --input-bg: #374151;
+        }
+        
+        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; padding-top: 10px; transition: background 0.3s; }
+        
+        .tab-content { display: none; height: calc(100vh - 100px); overflow-y: auto; padding: 15px; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card { 
+            background: var(--card); 
+            border-radius: 15px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); z-index: 50; }
+        .nav-item { text-align: center; font-size: 10px; color: #9ca3af; flex: 1; }
+        .nav-item.active { color: #2563eb; }
+        
+        textarea, input, select { 
+            background-color: var(--input-bg) !important; 
+            color: var(--text) !important; 
+            border: 1px solid var(--border) !important;
+            outline: none; 
+            resize: none;
+            width: 100%;
+        }
+
+        .base-readonly {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            height: 65vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        .tipo-camion { border: 2px solid #ef4444 !important; background: #fee2e2 !important; color: #b91c1c !important; }
+        .dark .tipo-camion { background: #450a0a !important; color: #fca5a5 !important; }
+        
+        .badge-last { background: #3b82f6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+    </style>
+</head>
+<body onclick="activarAudioSilent()">
+
+    <div id="tab1" class="tab-content active">
+        <h2 class="font-bold mb-3 text-blue-500 uppercase text-xs tracking-widest text-center">Bloc de Notas</h2>
+        <textarea id="notas-input" class="w-full h-[70vh] p-4 rounded-2xl text-sm shadow-inner" placeholder="Escribe aquí..."></textarea>
+    </div>
+
+    <div id="tab2" class="tab-content">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="font-bold text-blue-600">Base Grupal</h2>
+                <span id="sync-status" class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">SOLO LECTURA</span>
+            </div>
+            <button onclick="fetchCloudData()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg transition-all active:scale-95"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        <div id="base-display" class="base-readonly">Cargando información de la base...</div>
+    </div>
+
+    <div id="tab3" class="tab-content">
+        <h2 class="font-bold mb-4 text-center uppercase text-xs text-gray-400 tracking-widest">Configuración</h2>
+        <div class="flex gap-2 mb-6">
+            <input id="input-ruta" type="text" placeholder="Ej: RUTA 10" class="flex-1 p-3 rounded-xl text-sm font-bold bg-white">
+            <button onclick="addRuta()" class="bg-green-600 text-white px-6 rounded-xl font-bold shadow-md">+</button>
+        </div>
+        <div class="flex items-center justify-between p-4 card mb-6">
+            <span class="text-sm font-bold uppercase">Modo Nocturno</span>
+            <input type="checkbox" id="dark-toggle" onchange="document.body.classList.toggle('dark')" class="w-6 h-6">
+        </div>
+        <div id="lista-rutas-config"></div>
+    </div>
+
+    <div id="tab4" class="tab-content">
+        <div id="panel-tiempos"></div>
+    </div>
+
+    <div id="tab5" class="tab-content">
+        <div class="flex flex-col gap-3 mb-6">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-blue-600 uppercase text-xs">Historial</h2>
+                <button onclick="copyWA()" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase">WhatsApp</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="date" id="calendar-filter" onchange="renderReportes()" class="p-2 rounded-xl text-xs font-bold outline-none bg-white">
+                <select id="ruta-filter" onchange="renderReportes()" class="p-2 rounded-xl text-xs font-bold outline-none bg-white">
+                </select>
+            </div>
+        </div>
+        <div id="lista-reportes" class="space-y-2 mb-20"></div>
+    </div>
+
+    <nav class="nav-bottom">
+        <div class="nav-item active" onclick="go(1)"><i class="fas fa-edit fa-lg"></i><div>Notas</div></div>
+        <div class="nav-item" onclick="go(2)"><i class="fas fa-cloud fa-lg"></i><div>Base</div></div>
+        <div class="nav-item" onclick="go(3)"><i class="fas fa-tools fa-lg"></i><div>Ajustes</div></div>
+        <div class="nav-item" onclick="go(4)"><i class="fas fa-stopwatch fa-lg"></i><div>Tiempos</div></div>
+        <div class="nav-item" onclick="go(5)"><i class="fas fa-list-ul fa-lg"></i><div>Reporte</div></div>
+    </nav>
+
+    <script>
+        const GID = "befb4b7fbbbd04b9406f0b0b3fe6bbfe";
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioHabilitado = false;
+
+        function activarAudioSilent() { 
+            if (!audioHabilitado && audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => audioHabilitado = true);
+            }
+        }
+
+        function bipFuerte(tiempo) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = 'square'; osc.frequency.setValueAtTime(1100, tiempo);
+                gain.gain.setValueAtTime(0, tiempo);
+                gain.gain.linearRampToValueAtTime(0.9, tiempo + 0.02);
+                gain.gain.linearRampToValueAtTime(0, tiempo + 0.18);
+                osc.start(tiempo); osc.stop(tiempo + 0.2);
+            } catch(e) {}
+        }
+
+        function sonarPatronAlarma() {
+            if (!audioHabilitado) return;
+            const ahora = audioCtx.currentTime;
+            for(let i=0; i<4; i++) bipFuerte(ahora + (i*0.25));
+        }
+
+        let rutas = JSON.parse(localStorage.getItem('rutas_v41')) || [];
+        let historial = JSON.parse(localStorage.getItem('historial_v41')) || {};
+        let tabActual = 1;
+
+        function getFechaLocal() { return new Date().toISOString().split('T')[0]; }
+
+        function save() {
+            localStorage.setItem('rutas_v41', JSON.stringify(rutas));
+            localStorage.setItem('historial_v41', JSON.stringify(historial));
+            render();
+        }
+
+        function deleteRuta(idx) {
+            const nombreRuta = rutas[idx].n;
+            
+            if(confirm(`¿BORRADO DEFINITIVO?\n\nSe eliminará la ruta "${nombreRuta}" y todos sus registros históricos de cualquier fecha.`)) {
+                // 1. Eliminar de la lista de rutas activas
+                rutas.splice(idx, 1);
+                
+                // 2. Limpieza Global del Historial (recorre todas las fechas guardadas)
+                for (let fecha in historial) {
+                    if (Array.isArray(historial[fecha])) {
+                        historial[fecha] = historial[fecha].filter(reg => reg.ruta !== nombreRuta);
+                    }
+                }
+                
+                save();
+            }
+        }
+
+        function init() {
+            const hoy = getFechaLocal();
+            if (!historial[hoy]) historial[hoy] = [];
+            document.getElementById('calendar-filter').value = hoy;
+            document.getElementById('notas-input').value = localStorage.getItem('notas_v41') || '';
+            fetchCloudData(); 
+            render(); 
+            tick();
+        }
+
+        async function fetchCloudData() {
+            const status = document.getElementById('sync-status');
+            try {
+                const res = await fetch(`https://api.github.com/gists/${GID}?nocache=${Date.now()}`);
+                const data = await res.json();
+                if(data.files && data.files["base_logistica.txt"]) {
+                    document.getElementById('base-display').innerText = data.files["base_logistica.txt"].content;
+                    status.innerText = "SINCRO: " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+            } catch (e) { console.log("Error al cargar nube"); }
+        }
+
+        function go(t) {
+            activarAudioSilent();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab'+t).classList.add('active');
+            document.querySelectorAll('.nav-item')[t-1].classList.add('active');
+            tabActual = t;
+            if(t === 2) fetchCloudData();
+            if(t === 4 || t === 5) render();
+        }
+
+        function addRuta() {
+            let n = document.getElementById('input-ruta').value;
+            if(n) { 
+                rutas.push({n: n.toUpperCase(), alarm: 15, on: true}); 
+                document.getElementById('input-ruta').value=''; 
+                save(); 
+            }
+        }
+
+        function regPase(idx) {
+            let unidad = document.getElementById(`unit-${idx}`).value;
+            let tipo = document.getElementById(`tipo-${idx}`).value;
+            if(!unidad) return alert("Falta #");
+            historial[getFechaLocal()].push({ ruta: rutas[idx].n, unidad, tipo, time: Date.now() });
+            document.getElementById(`unit-${idx}`).value = '';
+            save();
+        }
+
+        function undo(idxGlobal) {
+            const fecha = document.getElementById('calendar-filter').value;
+            if(confirm("¿Eliminar registro?")) {
+                historial[fecha].splice(idxGlobal, 1);
+                save();
+            }
+        }
+
+        function render() {
+            // Ajustes con borrado global
+            document.getElementById('lista-rutas-config').innerHTML = rutas.map((r,i) => `
+                <div class="card flex flex-col gap-2">
+                    <div class="flex justify-between font-bold text-blue-600"><span>${r.n}</span>
+                    <button onclick="deleteRuta(${i})" class="text-red-400"><i class="fas fa-trash-alt"></i></button></div>
+                    <div class="flex items-center gap-3 text-xs">
+                        Alarma: <input type="number" value="${r.alarm}" onchange="rutas[${i}].alarm=parseInt(this.value);save()" class="w-12 border rounded px-1 text-center font-bold"> min
+                        <button onclick="rutas[${i}].on=!rutas[${i}].on;save()" class="ml-auto text-lg ${r.on?'text-blue-500':'text-gray-300'}"><i class="fas ${r.on?'fa-bell':'fa-bell-slash'}"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Tiempos
+            document.getElementById('panel-tiempos').innerHTML = rutas.map((r,i) => {
+                let regsRuta = (historial[getFechaLocal()] || []).filter(x => x.ruta === r.n);
+                let last = regsRuta[regsRuta.length - 1];
+                return `
+                    <div class="card ${last && last.tipo === 'Camión' ? 'tipo-camion' : ''}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div><span class="font-black text-xl uppercase">${r.n}</span>
+                            ${last ? `<div class="mt-1"><span class="badge-last">#${last.unidad}</span></div>` : ''}</div>
+                            <span class="cronos font-mono text-3xl font-black" data-last="${last?last.time:''}" data-alarm="${r.alarm}" data-on="${r.on}">--:--</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <input id="unit-${i}" type="number" placeholder="ID" class="w-20 p-3 rounded-xl text-sm font-bold">
+                            <select id="tipo-${i}" class="flex-1 p-3 rounded-xl text-xs font-bold"><option>Combi</option><option>Camión</option></select>
+                            <button onclick="regPase(${i})" class="bg-blue-600 text-white px-6 rounded-xl font-bold shadow-lg">OK</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const selRuta = document.getElementById('ruta-filter');
+            const prevVal = selRuta.value;
+            selRuta.innerHTML = rutas.map(r => `<option value="${r.n}">${r.n}</option>`).join('');
+            if(prevVal) selRuta.value = prevVal;
+
+            renderReportes();
+        }
+
+        function renderReportes() {
+            const selRuta = document.getElementById('ruta-filter');
+            const fecha = document.getElementById('calendar-filter').value;
+            const regsFiltrados = (historial[fecha] || []).map((r, i) => ({ ...r, originalIdx: i })).filter(r => r.ruta === selRuta.value);
+            
+            document.getElementById('lista-reportes').innerHTML = regsFiltrados.reverse().map((r, i, arr) => {
+                const ant = arr[i+1];
+                const freq = ant ? Math.floor((r.time - ant.time)/60000)+"m" : "---";
+                return `<div class="card p-4 flex justify-between items-center text-[11px]">
+                    <div><span class="font-black text-blue-600 text-sm">#${r.unidad}</span> | <b>${new Date(r.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</b>
+                    <div class="mt-1 opacity-50 font-bold uppercase text-[9px]">Freq: ${freq} | ${r.tipo}</div></div>
+                    <button onclick="undo(${r.originalIdx})" class="text-gray-300 p-2"><i class="fas fa-undo-alt"></i></button>
+                </div>`;
+            }).join('') || "<p class='text-center opacity-30 mt-20 text-[10px] font-bold'>SIN DATOS</p>";
+        }
+
+        function tick() {
+            document.querySelectorAll('.cronos').forEach(el => {
+                let last = el.dataset.last; if(!last) return el.innerText = "00:00";
+                let diff = Math.floor((Date.now() - last)/1000);
+                let m = Math.floor(diff/60); let s = diff % 60;
+                el.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                if(el.dataset.on === 'true' && m >= parseInt(el.dataset.alarm)) {
+                    el.style.color = '#ef4444'; if(s === 0) sonarPatronAlarma();
+                } else el.style.color = '';
+            });
+            setTimeout(tick, 1000);
+        }
+
+        function copyWA() {
+            const fecha = document.getElementById('calendar-filter').value;
+            let t = `*REPORTE LOGÍSTICA ${fecha}*\n\n`;
+            rutas.forEach(ruta => {
+                const regs = (historial[fecha] || []).filter(r => r.ruta === ruta.n);
+                if(regs.length) {
+                    t += `*[${ruta.n}]*\n` + regs.map(r => `• #${r.unidad} - ${new Date(r.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`).join('\n') + '\n\n';
+                }
+            });
+            navigator.clipboard.writeText(t); alert("Copiado");
+        }
+
+        let startX = 0;
+        document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.addEventListener('touchend', e => {
+            let diff = startX - e.changedTouches[0].clientX;
+            if(Math.abs(diff) > 80) {
+                if(diff > 0 && tabActual < 5) go(tabActual+1);
+                if(diff < 0 && tabActual > 1) go(tabActual-1);
+            }
+        });
+
+        document.getElementById('notas-input').oninput = (e) => localStorage.setItem('notas_v41', e.target.value);
+        setInterval(fetchCloudData, 30000);
+        init();
+    </script>
+</body>
+</html>
