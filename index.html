@@ -85,6 +85,13 @@
             border-radius: 12px;
         }
 
+        /* CORRECCIÓN DE LA BASE GRUPAL */
+        #base-display {
+            background-color: var(--input-bg) !important;
+            color: var(--text) !important;
+            border: 1px solid var(--border);
+        }
+
         .tipo-camion { border-left: 6px solid #ef4444 !important; }
         .cronos { font-variant-numeric: tabular-nums; }
 
@@ -116,7 +123,7 @@
             </div>
             <button onclick="fetchCloudData()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <div id="base-display" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-dashed border-gray-400 font-mono text-[11px] whitespace-pre-wrap overflow-y-auto h-[60vh]">Conectando...</div>
+        <div id="base-display" class="p-4 rounded-xl font-mono text-[11px] whitespace-pre-wrap overflow-y-auto h-[60vh]">Conectando...</div>
     </div>
 
     <div id="tab3" class="tab-content">
@@ -177,7 +184,6 @@
         let historial = JSON.parse(localStorage.getItem('log_hist')) || {};
         let tabActual = 1;
 
-        // --- SOLUCIÓN ZONA HORARIA CANCÚN ---
         function getFechaLocal() {
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -266,8 +272,6 @@
 
         function render() {
             const hoy = getFechaLocal();
-            
-            // Ajustes
             document.getElementById('lista-rutas-config').innerHTML = rutas.map((r,i) => `
                 <div class="card flex flex-col gap-2">
                     <div class="flex justify-between font-bold text-blue-600"><span>${r.n}</span>
@@ -279,7 +283,6 @@
                 </div>
             `).join('');
 
-            // Tiempos
             document.getElementById('panel-tiempos').innerHTML = rutas.map((r,i) => {
                 let regs = (historial[hoy] || []).filter(x => x.ruta === r.n);
                 let last = regs[regs.length - 1];
@@ -306,7 +309,6 @@
             renderReportes();
         }
 
-        // --- REPORTE CON MINUTOS Y SEGUNDOS ---
         function renderReportes() {
             const rSel = document.getElementById('ruta-filter').value;
             const f = document.getElementById('calendar-filter').value;
@@ -319,7 +321,7 @@
                     const diffS = Math.floor((r.time - sig.time) / 1000);
                     const mm = Math.floor(diffS / 60);
                     const ss = diffS % 60;
-                    freq = `${mm}m ${ss}s`; // Muestra minutos y segundos
+                    freq = `${mm}m ${ss}s`;
                 }
                 return `<div class="card p-3 flex justify-between items-center text-[11px]">
                     <div>
@@ -384,7 +386,10 @@
         window.onload = () => {
             document.getElementById('calendar-filter').value = getFechaLocal();
             document.getElementById('notas-input').value = localStorage.getItem('log_notas') || '';
-            if(localStorage.getItem('log_dark') === 'true') document.body.classList.add('dark');
+            if(localStorage.getItem('log_dark') === 'true') {
+                document.body.classList.add('dark');
+                document.getElementById('dark-toggle').checked = true;
+            }
             document.getElementById('notas-input').oninput = (e) => localStorage.setItem('log_notas', e.target.value);
             fetchCloudData(); render(); tick();
         };
