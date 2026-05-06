@@ -1,13 +1,13 @@
 {
-  "name": "Logística Pro V5.6",
-  "short_name": "Logística",
+  "name": "Checador de Rutas Pro",
+  "short_name": "Checador",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f3f4f6",
   "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2850/2850358.png",
+      "src": "377030.png",
       "sizes": "512x512",
       "type": "image/png"
     }
