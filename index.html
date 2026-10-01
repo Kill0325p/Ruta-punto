@@ -2,405 +2,820 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Logística Pro V5.6 - Precisión Total</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
-    </script>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Check rut</title>
     <style>
-        :root {
-            --bg: #f3f4f6;
-            --card: #ffffff;
-            --text: #1f2937;
-            --border: #d1d5db;
-            --input-bg: #ffffff;
-            --accent: #2563eb;
-        }
-        .dark {
-            --bg: #111827;
-            --card: #1f2937;
-            --text: #f9fafb;
-            --border: #4b5563;
-            --input-bg: #374151;
-            --accent: #3b82f6;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            transition: background 0.3s;
-            margin: 0;
-            padding-top: env(safe-area-inset-top);
-        }
-
-        .tab-content {
-            display: none;
-            height: calc(100vh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-            overflow-y: auto;
-            padding: 15px;
-            padding-bottom: 100px;
-        }
-        .tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        .nav-bottom {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: var(--card);
+            background-color: #121212;
+            color: #ffffff;
+            height: 100vh;
             display: flex;
-            justify-content: space-around;
-            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-            border-top: 1px solid var(--border);
-            z-index: 50;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .nav-item {
-            text-align: center;
-            font-size: 10px;
-            color: #9ca3af;
+
+        header {
+            background-color: #0a5c11;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+
+        /* BUSCADOR EN EL HEADER */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 2px 8px;
+            max-width: 170px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-box span {
+            font-size: 0.8rem;
+            margin-right: 4px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 0.8rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        nav {
+            background-color: #00bcd4;
+            display: flex;
+            height: 50px;
+        }
+
+        .tab-btn {
             flex: 1;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-        }
-        .nav-item.active { color: var(--accent); }
-
-        textarea, input, select {
-            background-color: var(--input-bg) !important;
-            color: var(--text) !important;
-            border: 1px solid var(--border) !important;
-            outline: none;
-            border-radius: 12px;
-        }
-
-        /* CORRECCIÓN DE LA BASE GRUPAL */
-        #base-display {
-            background-color: var(--input-bg) !important;
-            color: var(--text) !important;
-            border: 1px solid var(--border);
-        }
-
-        .tipo-camion { border-left: 6px solid #ef4444 !important; }
-        .cronos { font-variant-numeric: tabular-nums; }
-
-        .badge-last {
-            background: var(--accent);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 11px;
+            justify-content: center;
+            font-size: 0.65rem;
             font-weight: bold;
+            cursor: pointer;
         }
+
+        .tab-btn span {
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            border-bottom: 3px solid #5d4037;
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        main {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-page {
+            display: none;
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        .tab-page.active {
+            display: block;
+        }
+
+        /* HORARIOS (CUADRÍCULA 4x5) */
+        #page-horarios.active {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+            padding: 4px;
+        }
+
+        .grid-card {
+            background-color: #1e1e1e;
+            border: 1px solid #2c2c2c;
+            border-radius: 4px;
+            padding: 5px 3px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .grid-card:active {
+            background-color: #2a2a2a;
+        }
+
+        /* EFECTO DE RESALTADO AL BUSCAR */
+        .grid-card.highlighted {
+            border: 2px solid #00bcd4 !important;
+            background-color: #1a333d !important;
+            box-shadow: 0 0 10px #00bcd4;
+            animation: pulse-border 1.2s infinite alternate;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 4px #00bcd4; }
+            100% { box-shadow: 0 0 12px #00bcd4; }
+        }
+
+        .card-name {
+            font-size: 0.75rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+        }
+
+        .card-time-info {
+            text-align: center;
+        }
+
+        .card-elapsed {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #4caf50;
+            font-family: monospace;
+        }
+
+        .card-last-clock {
+            font-size: 0.6rem;
+            color: #aaaaaa;
+            margin-bottom: 2px;
+        }
+
+        /* TIEMPO QUE LLEVABA LA UNIDAD ANTERIOR */
+        .card-prev-clock {
+            font-size: 0.58rem;
+            color: #2196f3;
+            border-top: 1px dashed #333;
+            padding-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* MODAL / VENTANA EMERGENTE */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background-color: #1e1e1e;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .modal-route-badge {
+            background-color: #2196f3;
+            color: white;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-input-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #aaaaaa;
+            margin-bottom: 4px;
+        }
+
+        .modal-input-group input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #555;
+            color: #ffffff;
+            font-size: 1rem;
+            padding: 6px 0;
+            outline: none;
+        }
+
+        .modal-input-group input:focus {
+            border-bottom-color: #2196f3;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+
+        .modal-btn {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+
+        .btn-cancel { color: #aaaaaa; }
+        .btn-save { color: #4caf50; }
+
+        /* RUTAS */
+        .route-list-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #2c2c2c;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #f44336;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .fab-add {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #2196f3;
+            color: white;
+            font-size: 28px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+
+        /* REPORTES */
+        .report-header { padding: 12px; }
+        .filter-label { font-size: 0.75rem; color: #2196f3; margin-top: 8px; }
+        .filter-select, .filter-date {
+            width: 100%;
+            background: #1e1e1e;
+            border: 1px solid #2c2c2c;
+            color: white;
+            padding: 8px;
+            font-size: 0.9rem;
+            margin-top: 4px;
+            border-radius: 4px;
+        }
+        .btn-whatsapp {
+            width: 100%;
+            background-color: #25d366;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+        .report-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #2c2c2c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .report-time-diff {
+            font-size: 0.75rem;
+            color: #2196f3;
+            margin-top: 2px;
+        }
+        .no-data { text-align: center; color: #aaaaaa; padding: 20px; }
     </style>
 </head>
-<body onclick="activarAudioSilent()">
+<body>
 
-    <div id="tab1" class="tab-content active">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="font-bold text-blue-500 uppercase text-xs tracking-widest">Bloc de Notas</h2>
-            <button onclick="descargarNotas()" class="text-gray-400 text-xs"><i class="fas fa-download"></i> TXT</button>
+    <header>
+        <h1>Check rut</h1>
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="input-buscar" placeholder="Ruta o Unidad..." oninput="buscarEnCuadricula()">
         </div>
-        <textarea id="notas-input" class="w-full h-[70vh] p-4 text-sm shadow-inner" placeholder="Escribe aquí..."></textarea>
-    </div>
+    </header>
 
-    <div id="tab2" class="tab-content">
-        <div class="flex justify-between items-center mb-4">
-            <div>
-                <h2 class="font-bold text-blue-600">Base Grupal</h2>
-                <span id="sync-status" class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">CARGANDO...</span>
-            </div>
-            <button onclick="fetchCloudData()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg"><i class="fas fa-sync-alt"></i></button>
-        </div>
-        <div id="base-display" class="p-4 rounded-xl font-mono text-[11px] whitespace-pre-wrap overflow-y-auto h-[60vh]">Conectando...</div>
-    </div>
-
-    <div id="tab3" class="tab-content">
-        <h2 class="font-bold mb-4 text-center uppercase text-xs text-gray-400 tracking-widest">Ajustes</h2>
-        <div class="flex gap-2 mb-6">
-            <input id="input-ruta" type="text" placeholder="Ej: RUTA 10" class="flex-1 p-3 text-sm font-bold">
-            <button onclick="addRuta()" class="bg-green-600 text-white px-6 rounded-xl font-bold shadow-md">+</button>
-        </div>
-        
-        <div class="card flex items-center justify-between">
-            <span class="text-sm font-bold uppercase">Modo Nocturno</span>
-            <input type="checkbox" id="dark-toggle" onchange="toggleDark()" class="w-6 h-6">
-        </div>
-
-        <div id="lista-rutas-config" class="mt-4"></div>
-
-        <div class="mt-8 p-4 border border-red-200 rounded-2xl bg-red-50 dark:bg-red-900/10">
-            <h3 class="text-red-500 font-bold text-xs uppercase mb-2">Seguridad</h3>
-            <button onclick="exportarBackup()" class="w-full bg-gray-600 text-white p-2 rounded-lg text-xs font-bold mb-2">Exportar Backup (JSON)</button>
-            <button onclick="borrarTodo()" class="w-full bg-red-100 text-red-600 p-2 rounded-lg text-xs font-bold">Limpiar Historial</button>
-        </div>
-    </div>
-
-    <div id="tab4" class="tab-content">
-        <div id="panel-tiempos" class="space-y-3"></div>
-    </div>
-
-    <div id="tab5" class="tab-content">
-        <div class="flex flex-col gap-3 mb-6">
-            <div class="flex justify-between items-center">
-                <h2 class="font-bold text-blue-600 uppercase text-xs">Historial</h2>
-                <button onclick="copyWA()" class="bg-green-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-md">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </button>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <input type="date" id="calendar-filter" onchange="renderReportes()" class="p-2 text-xs font-bold">
-                <select id="ruta-filter" onchange="renderReportes()" class="p-2 text-xs font-bold"></select>
-            </div>
-        </div>
-        <div id="lista-reportes" class="space-y-2"></div>
-    </div>
-
-    <nav class="nav-bottom">
-        <div class="nav-item active" onclick="go(1)"><i class="fas fa-edit fa-lg"></i><span>Notas</span></div>
-        <div class="nav-item" onclick="go(2)"><i class="fas fa-cloud fa-lg"></i><span>Base</span></div>
-        <div class="nav-item" onclick="go(3)"><i class="fas fa-cog fa-lg"></i><span>Ajustes</span></div>
-        <div class="nav-item" onclick="go(4)"><i class="fas fa-stopwatch fa-lg"></i><span>Tiempos</span></div>
-        <div class="nav-item" onclick="go(5)"><i class="fas fa-list-ol fa-lg"></i><span>Reporte</span></div>
+    <nav>
+        <button class="tab-btn" onclick="openTab('rutas', this)">
+            <span>🚌</span>RUTAS
+        </button>
+        <button class="tab-btn active" onclick="openTab('horarios', this)">
+            <span>📅</span>HORARIOS
+        </button>
+        <button class="tab-btn" onclick="openTab('reportes', this)">
+            <span>📊</span>REPORTES
+        </button>
     </nav>
 
+    <main>
+        <div id="page-rutas" class="tab-page">
+            <div id="rutas-container"></div>
+            <button class="fab-add" onclick="agregarNuevaRuta()">+</button>
+        </div>
+
+        <div id="page-horarios" class="tab-page active"></div>
+
+        <div id="page-reportes" class="tab-page">
+            <div class="report-header">
+                <div class="filter-label">Fecha</div>
+                <input type="date" class="filter-date" id="reporte-fecha" onchange="renderizarReporte()">
+                
+                <div class="filter-label">Ruta</div>
+                <select class="filter-select" id="reporte-ruta-select" onchange="renderizarReporte()"></select>
+
+                <button class="btn-whatsapp" onclick="compartirWhatsApp()">COMPARTIR POR WHATSAPP</button>
+            </div>
+            <div id="reportes-lista"></div>
+        </div>
+    </main>
+
+    <!-- VENTANA EMERGENTE (MODAL) PARA REGISTRAR PASE -->
+    <div id="modal-pase" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Registrar pase</div>
+            <div class="modal-route-badge">
+                <span>ℹ️</span>
+                <span id="modal-nombre-ruta">--</span>
+            </div>
+            <div class="modal-input-group">
+                <label for="modal-numero-unidad">Número</label>
+                <input type="number" id="modal-numero-unidad" placeholder="Ingrese número..." autofocus>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="cerrarModal()">CANCELAR</button>
+                <button class="modal-btn btn-save" onclick="guardarRegistroPase()">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const GID = "befb4b7fbbbd04b9406f0b0b3fe6bbfe";
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let audioHabilitado = false;
-        
-        let rutas = JSON.parse(localStorage.getItem('log_rutas')) || [];
-        let historial = JSON.parse(localStorage.getItem('log_hist')) || {};
-        let tabActual = 1;
+        var rutas = JSON.parse(localStorage.getItem('check_rutas')) || [];
+        var registros = JSON.parse(localStorage.getItem('check_registros')) || {};
+        var rutaSeleccionada = null;
 
-        function getFechaLocal() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        function guardarDatos() {
+            localStorage.setItem('check_rutas', JSON.stringify(rutas));
+            localStorage.setItem('check_registros', JSON.stringify(registros));
         }
 
-        function activarAudioSilent() { 
-            if (!audioHabilitado && audioCtx.state === 'suspended') {
-                audioCtx.resume().then(() => audioHabilitado = true);
+        function cargarFechaActual() {
+            var inputFecha = document.getElementById('reporte-fecha');
+            if (inputFecha) {
+                var hoy = new Date();
+                var yyyy = hoy.getFullYear();
+                var mm = String(hoy.getMonth() + 1);
+                if (mm.length < 2) mm = '0' + mm;
+                var dd = String(hoy.getDate());
+                if (dd.length < 2) dd = '0' + dd;
+                inputFecha.value = yyyy + '-' + mm + '-' + dd;
             }
         }
 
-        function bip(tiempo) {
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.type = 'square'; osc.frequency.setValueAtTime(1100, tiempo);
-                gain.gain.setValueAtTime(0, tiempo);
-                gain.gain.linearRampToValueAtTime(0.8, tiempo + 0.02);
-                gain.gain.linearRampToValueAtTime(0, tiempo + 0.18);
-                osc.start(tiempo); osc.stop(tiempo + 0.2);
-            } catch(e) {}
-        }
-
-        function sonarPatron() {
-            if (!audioHabilitado) return;
-            const t = audioCtx.currentTime;
-            for(let i=0; i<4; i++) bip(t + (i*0.25));
-        }
-
-        function save() {
-            localStorage.setItem('log_rutas', JSON.stringify(rutas));
-            localStorage.setItem('log_hist', JSON.stringify(historial));
-            render();
-        }
-
-        function toggleDark() {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('log_dark', document.body.classList.contains('dark'));
-        }
-
-        function addRuta() {
-            let n = document.getElementById('input-ruta').value.trim();
-            if(n) { 
-                rutas.push({n: n.toUpperCase(), alarm: 15, on: true}); 
-                document.getElementById('input-ruta').value=''; 
-                save(); 
-            }
-        }
-
-        function deleteRuta(idx) {
-            const nombre = rutas[idx].n;
-            if(confirm(`¿Borrar "${nombre}"? Se perderán sus datos históricos.`)) {
-                rutas.splice(idx, 1);
-                for (let f in historial) historial[f] = historial[f].filter(reg => reg.ruta !== nombre);
-                save();
-            }
-        }
-
-        function regPase(idx) {
-            let unid = document.getElementById(`unit-${idx}`).value;
-            let tipo = document.getElementById(`tipo-${idx}`).value;
-            if(!unid) return;
-            const hoy = getFechaLocal();
-            if (!historial[hoy]) historial[hoy] = [];
-            historial[hoy].push({ ruta: rutas[idx].n, unidad: unid, tipo: tipo, time: Date.now() });
-            document.getElementById(`unit-${idx}`).value = '';
-            save();
-        }
-
-        function undo(idxGlob) {
-            const f = document.getElementById('calendar-filter').value;
-            if(confirm("¿Eliminar registro?")) { historial[f].splice(idxGlob, 1); save(); }
-        }
-
-        function go(t) {
-            activarAudioSilent();
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('tab'+t).classList.add('active');
-            document.querySelectorAll('.nav-item')[t-1].classList.add('active');
-            tabActual = t;
-            if(t === 2) fetchCloudData();
-            if(t === 4 || t === 5) render();
-        }
-
-        function render() {
-            const hoy = getFechaLocal();
-            document.getElementById('lista-rutas-config').innerHTML = rutas.map((r,i) => `
-                <div class="card flex flex-col gap-2">
-                    <div class="flex justify-between font-bold text-blue-600"><span>${r.n}</span>
-                    <button onclick="deleteRuta(${i})" class="text-red-400"><i class="fas fa-trash-alt"></i></button></div>
-                    <div class="flex items-center gap-3 text-xs">
-                        Min. Alerta: <input type="number" value="${r.alarm}" onchange="rutas[${i}].alarm=parseInt(this.value);save()" class="w-12 border rounded px-1 text-center font-bold">
-                        <button onclick="rutas[${i}].on=!rutas[${i}].on;save()" class="ml-auto text-lg ${r.on?'text-blue-500':'text-gray-300'}"><i class="fas ${r.on?'fa-bell':'fa-bell-slash'}"></i></button>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('panel-tiempos').innerHTML = rutas.map((r,i) => {
-                let regs = (historial[hoy] || []).filter(x => x.ruta === r.n);
-                let last = regs[regs.length - 1];
-                return `
-                    <div class="card ${last && last.tipo === 'Camión' ? 'tipo-camion' : ''}">
-                        <div class="flex justify-between items-start mb-4">
-                            <div><span class="font-black text-xl uppercase">${r.n}</span>
-                            ${last ? `<div class="mt-1"><span class="badge-last">#${last.unidad}</span></div>` : ''}</div>
-                            <span class="cronos font-mono text-3xl font-black text-gray-400" data-last="${last?last.time:''}" data-alarm="${r.alarm}" data-on="${r.on}">00:00</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input id="unit-${i}" type="number" placeholder="ID" class="w-20 p-3 rounded-xl text-sm font-bold shadow-inner">
-                            <select id="tipo-${i}" class="flex-1 p-3 rounded-xl text-xs font-bold"><option>Combi</option><option>Camión</option></select>
-                            <button onclick="regPase(${i})" class="bg-blue-600 text-white px-6 rounded-xl font-bold shadow-lg">OK</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const sR = document.getElementById('ruta-filter');
-            const v = sR.value;
-            sR.innerHTML = rutas.map(r => `<option value="${r.n}">${r.n}</option>`).join('');
-            if(v) sR.value = v;
-            renderReportes();
-        }
-
-        function renderReportes() {
-            const rSel = document.getElementById('ruta-filter').value;
-            const f = document.getElementById('calendar-filter').value;
-            const filtrados = (historial[f] || []).map((r, i) => ({ ...r, oIdx: i })).filter(r => r.ruta === rSel);
+        function openTab(tabName, element) {
+            var btns = document.querySelectorAll('.tab-btn');
+            var pages = document.querySelectorAll('.tab-page');
             
-            document.getElementById('lista-reportes').innerHTML = filtrados.slice().reverse().map((r, i, arr) => {
-                const sig = arr[i+1]; 
-                let freq = "---";
-                if (sig) {
-                    const diffS = Math.floor((r.time - sig.time) / 1000);
-                    const mm = Math.floor(diffS / 60);
-                    const ss = diffS % 60;
-                    freq = `${mm}m ${ss}s`;
-                }
-                return `<div class="card p-3 flex justify-between items-center text-[11px]">
-                    <div>
-                        <span class="font-black text-blue-600 text-sm">#${r.unidad}</span> | <b>${new Date(r.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</b>
-                        <div class="mt-1 opacity-50 font-bold uppercase text-[9px]">Freq: ${freq} | ${r.tipo}</div>
-                    </div>
-                    <button onclick="undo(${r.oIdx})" class="text-gray-300 p-2"><i class="fas fa-undo-alt"></i></button>
-                </div>`;
-            }).join('') || "<p class='text-center opacity-30 mt-10 text-[10px] font-bold'>SIN DATOS</p>";
-        }
+            for(var i=0; i<btns.length; i++) btns[i].classList.remove('active');
+            for(var j=0; j<pages.length; j++) pages[j].classList.remove('active');
 
-        async function fetchCloudData() {
-            try {
-                const res = await fetch(`https://api.github.com/gists/${GID}?nocache=${Date.now()}`);
-                const d = await res.json();
-                if(d.files && d.files["base_logistica.txt"]) {
-                    document.getElementById('base-display').innerText = d.files["base_logistica.txt"].content;
-                    document.getElementById('sync-status').innerText = "SINCRO: " + new Date().toLocaleTimeString();
-                }
-            } catch (e) { document.getElementById('sync-status').innerText = "ERROR RED"; }
-        }
+            element.classList.add('active');
+            document.getElementById('page-' + tabName).classList.add('active');
 
-        function tick() {
-            document.querySelectorAll('.cronos').forEach(el => {
-                let l = el.dataset.last; if(!l) return;
-                let d = Math.floor((Date.now() - l)/1000);
-                let m = Math.floor(d/60), s = d % 60;
-                el.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                if(el.dataset.on === 'true' && m >= parseInt(el.dataset.alarm)) {
-                    el.classList.add('text-red-500'); if(s === 0) sonarPatron();
-                } else el.classList.remove('text-red-500');
-            });
-            setTimeout(tick, 1000);
-        }
-
-        function copyWA() {
-            const f = document.getElementById('calendar-filter').value;
-            let txt = `*REPORTE LOGÍSTICA - ${f}*\n\n`;
-            rutas.forEach(ruta => {
-                const regs = (historial[f] || []).filter(r => r.ruta === ruta.n);
-                if(regs.length) {
-                    txt += `*[${ruta.n}]*\n` + regs.map(r => `• #${r.unidad} - ${new Date(r.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`).join('\n') + '\n\n';
-                }
-            });
-            navigator.clipboard.writeText(txt); alert("Copiado");
-        }
-
-        function descargarNotas() {
-            const blob = new Blob([document.getElementById('notas-input').value], {type: "text/plain"});
-            const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-            a.download = `notas_${getFechaLocal()}.txt`; a.click();
-        }
-
-        function exportarBackup() {
-            const blob = new Blob([JSON.stringify({rutas, historial})], {type: "application/json"});
-            const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-            a.download = `backup_${getFechaLocal()}.json`; a.click();
-        }
-
-        function borrarTodo() { if(confirm("¿Borrar historial?")) { historial = {}; save(); } }
-
-        window.onload = () => {
-            document.getElementById('calendar-filter').value = getFechaLocal();
-            document.getElementById('notas-input').value = localStorage.getItem('log_notas') || '';
-            if(localStorage.getItem('log_dark') === 'true') {
-                document.body.classList.add('dark');
-                document.getElementById('dark-toggle').checked = true;
+            if (tabName === 'horarios') {
+                renderizarCuadriculaHorarios();
+                buscarEnCuadricula();
             }
-            document.getElementById('notas-input').oninput = (e) => localStorage.setItem('log_notas', e.target.value);
-            fetchCloudData(); render(); tick();
-        };
+            if (tabName === 'reportes') {
+                if (!document.getElementById('reporte-fecha').value) {
+                    cargarFechaActual();
+                }
+                renderizarOpcionesReportes();
+                renderizarReporte();
+            }
+        }
+
+        function renderizarRutas() {
+            var container = document.getElementById('rutas-container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            if (rutas.length === 0) {
+                container.innerHTML = '<div class="no-data">No hay rutas guardadas. Presiona + para agregar una.</div>';
+                return;
+            }
+
+            for(var i=0; i<rutas.length; i++) {
+                (function(index){
+                    var item = document.createElement('div');
+                    item.className = 'route-list-item';
+                    item.innerHTML = '<span>' + rutas[index] + '</span><button class="delete-btn" onclick="eliminarRuta(' + index + ')">&times;</button>';
+                    container.appendChild(item);
+                })(i);
+            }
+        }
+
+        function agregarNuevaRuta() {
+            var nombre = prompt("Nombre de la nueva ruta:");
+            if (nombre && nombre.trim() !== "") {
+                rutas.push(nombre.trim());
+                guardarDatos();
+                renderizarRutas();
+                renderizarCuadriculaHorarios();
+                renderizarOpcionesReportes();
+            }
+        }
+
+        function eliminarRuta(index) {
+            if (confirm('¿Eliminar ruta?')) {
+                var rutaEliminada = rutas[index];
+                rutas.splice(index, 1);
+                delete registros[rutaEliminada];
+                guardarDatos();
+                renderizarRutas();
+                renderizarCuadriculaHorarios();
+                renderizarOpcionesReportes();
+            }
+        }
+
+        function formatearHoraUnidad(registro) {
+            if (!registro) return '--:--';
+            var d = new Date(registro.ts);
+            var hh = String(d.getHours());
+            if (hh.length < 2) hh = '0' + hh;
+            var mm = String(d.getMinutes());
+            if (mm.length < 2) mm = '0' + mm;
+            var txt = hh + ':' + mm;
+            if (registro.numero) txt += ' (#' + registro.numero + ')';
+            return txt;
+        }
+
+        function calcularDiferenciaEntrePases(tsActual, tsAnterior) {
+            if (!tsAnterior) return '--';
+            var diffSegs = Math.floor((tsActual - tsAnterior) / 1000);
+            if (diffSegs < 0) diffSegs = 0;
+            var mins = Math.floor(diffSegs / 60);
+            var segs = diffSegs % 60;
+            return mins + 'm ' + (segs < 10 ? '0' : '') + segs + 's';
+        }
+
+        function renderizarCuadriculaHorarios() {
+            var container = document.getElementById('page-horarios');
+            if(!container) return;
+            container.innerHTML = '';
+
+            if (rutas.length === 0) {
+                container.innerHTML = '<div class="no-data" style="grid-column: 1 / -1;">No hay rutas. Agrega tus rutas en la pestaña "RUTAS".</div>';
+                return;
+            }
+
+            var vis = rutas.slice(0, 20);
+
+            for(var i=0; i<vis.length; i++) {
+                (function(nombre){
+                    var regList = registros[nombre] || [];
+                    var ult = regList.length > 0 ? regList[regList.length - 1] : null;
+                    var penult = regList.length > 1 ? regList[regList.length - 2] : null;
+
+                    var cleanId = nombre.replace(/[^a-zA-Z0-9]/g, '_');
+
+                    var card = document.createElement('div');
+                    card.className = 'grid-card';
+                    card.id = 'card-route-' + cleanId;
+                    card.onclick = function() { abrirModal(nombre); };
+
+                    var horaTextoActual = formatearHoraUnidad(ult);
+                    
+                    var horaTextoAnterior = 'Ant: --';
+                    if (ult && penult) {
+                        var diffTexto = calcularDiferenciaEntrePases(ult.ts, penult.ts);
+                        var numPenult = penult.numero ? ' (#' + penult.numero + ')' : '';
+                        horaTextoAnterior = 'Ant: ' + diffTexto + numPenult;
+                    }
+
+                    card.innerHTML = 
+                        '<div class="card-name">' + nombre + '</div>' +
+                        '<div class="card-time-info">' +
+                            '<div class="card-elapsed" id="timer-' + cleanId + '">--m --s</div>' +
+                            '<div class="card-last-clock" id="clock-' + cleanId + '">' + horaTextoActual + '</div>' +
+                            '<div class="card-prev-clock" id="prev-' + cleanId + '">' + horaTextoAnterior + '</div>' +
+                        '</div>';
+                    
+                    container.appendChild(card);
+                })(vis[i]);
+            }
+            actualizarRelojes();
+        }
+
+        /* LÓGICA DE BÚSQUEDA Y RESALTADO */
+        function buscarEnCuadricula() {
+            var query = document.getElementById('input-buscar').value.trim().toLowerCase();
+            var vis = rutas.slice(0, 20);
+
+            for(var i=0; i<vis.length; i++) {
+                var nombreRuta = vis[i];
+                var cleanId = nombreRuta.replace(/[^a-zA-Z0-9]/g, '_');
+                var card = document.getElementById('card-route-' + cleanId);
+
+                if (!card) continue;
+
+                if (query === "") {
+                    card.classList.remove('highlighted');
+                    continue;
+                }
+
+                var coincide = false;
+
+                // 1. Coincidencia por nombre/número de ruta
+                if (nombreRuta.toLowerCase().indexOf(query) !== -1) {
+                    coincide = true;
+                }
+
+                // 2. Coincidencia por número de unidad en los registros guardados
+                if (!coincide && registros[nombreRuta]) {
+                    var regList = registros[nombreRuta];
+                    for(var k=0; k<regList.length; k++) {
+                        if (regList[k].numero && String(regList[k].numero).toLowerCase().indexOf(query) !== -1) {
+                            coincide = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (coincide) {
+                    card.classList.add('highlighted');
+                } else {
+                    card.classList.remove('highlighted');
+                }
+            }
+        }
+
+        function actualizarRelojes() {
+            var ahora = Date.now();
+            var vis = rutas.slice(0, 20);
+
+            for(var i=0; i<vis.length; i++) {
+                var nombre = vis[i];
+                var cleanId = nombre.replace(/[^a-zA-Z0-9]/g, '_');
+                var elTimer = document.getElementById('timer-' + cleanId);
+                
+                if (elTimer) {
+                    var regList = registros[nombre] || [];
+                    if (regList.length === 0) {
+                        elTimer.textContent = '--m --s';
+                    } else {
+                        var ultTS = regList[regList.length - 1].ts;
+                        var segsTotal = Math.floor((ahora - ultTS) / 1000);
+                        var mins = Math.floor(segsTotal / 60);
+                        var segsRest = segsTotal % 60;
+                        elTimer.textContent = mins + 'm ' + (segsRest < 10 ? '0' : '') + segsRest + 's';
+                    }
+                }
+            }
+        }
+
+        /* MANEJO DEL MODAL / VENTANA FLOTANTE */
+        function abrirModal(nombreRuta) {
+            rutaSeleccionada = nombreRuta;
+            document.getElementById('modal-nombre-ruta').textContent = nombreRuta;
+            document.getElementById('modal-numero-unidad').value = '';
+            document.getElementById('modal-pase').classList.add('active');
+            setTimeout(function() {
+                document.getElementById('modal-numero-unidad').focus();
+            }, 100);
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-pase').classList.remove('active');
+            rutaSeleccionada = null;
+        }
+
+        function guardarRegistroPase() {
+            if (!rutaSeleccionada) return;
+
+            var numInput = document.getElementById('modal-numero-unidad').value.trim();
+            var ts = Date.now();
+
+            if (!registros[rutaSeleccionada]) registros[rutaSeleccionada] = [];
+            registros[rutaSeleccionada].push({
+                ts: ts,
+                numero: numInput
+            });
+
+            guardarDatos();
+            renderizarCuadriculaHorarios();
+            buscarEnCuadricula();
+            cerrarModal();
+        }
+
+        function renderizarOpcionesReportes() {
+            var select = document.getElementById('reporte-ruta-select');
+            if(!select) return;
+            select.innerHTML = '';
+            for(var i=0; i<rutas.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = rutas[i];
+                opt.textContent = rutas[i];
+                select.appendChild(opt);
+            }
+        }
+
+        function renderizarReporte() {
+            var elFecha = document.getElementById('reporte-fecha');
+            var elRuta = document.getElementById('reporte-ruta-select');
+            var fechaVal = elFecha ? elFecha.value : null;
+            var rutaVal = elRuta ? elRuta.value : null;
+            var listaDiv = document.getElementById('reportes-lista');
+
+            if (!listaDiv) return;
+            listaDiv.innerHTML = '';
+
+            if (!fechaVal || !rutaVal || !registros[rutaVal]) {
+                listaDiv.innerHTML = '<div class="no-data">Sin registros.</div>';
+                return;
+            }
+
+            var regRuta = registros[rutaVal];
+            var filtrados = [];
+            for(var i=0; i<regRuta.length; i++) {
+                var d = new Date(regRuta[i].ts);
+                var yyyy = d.getFullYear();
+                var mm = String(d.getMonth() + 1);
+                if (mm.length < 2) mm = '0' + mm;
+                var dd = String(d.getDate());
+                if (dd.length < 2) dd = '0' + dd;
+
+                if ((yyyy + '-' + mm + '-' + dd) === fechaVal) {
+                    filtrados.push({ indexOriginal: i, registro: regRuta[i] });
+                }
+            }
+
+            if (filtrados.length === 0) {
+                listaDiv.innerHTML = '<div class="no-data">Sin registros para esta fecha.</div>';
+                return;
+            }
+
+            for(var j = filtrados.length - 1; j >= 0; j--) {
+                (function(currentIndex){
+                    var itemData = filtrados[currentIndex];
+                    var d2 = new Date(itemData.registro.ts);
+                    var hh = String(d2.getHours());
+                    if (hh.length < 2) hh = '0' + hh;
+                    var mm = String(d2.getMinutes());
+                    if (mm.length < 2) mm = '0' + mm;
+                    var ss = String(d2.getSeconds());
+                    if (ss.length < 2) ss = '0' + ss;
+                    
+                    var hStr = hh + ':' + mm + ':' + ss;
+                    var numStr = itemData.registro.numero ? ' - Unidad #' + itemData.registro.numero : '';
+                    
+                    var diffHtml = '';
+                    if (currentIndex > 0) {
+                        var regAnterior = filtrados[currentIndex - 1].registro;
+                        var diffStr = calcularDiferenciaEntrePases(itemData.registro.ts, regAnterior.ts);
+                        diffHtml = '<div class="report-time-diff">Combi anterior: ' + diffStr + '</div>';
+                    } else {
+                        diffHtml = '<div class="report-time-diff">Primera combi del día</div>';
+                    }
+
+                    var itemDiv = document.createElement('div');
+                    itemDiv.className = 'report-item';
+                    
+                    var infoSpan = document.createElement('div');
+                    infoSpan.innerHTML = '<strong>' + hStr + '</strong>' + numStr + diffHtml;
+
+                    var btnDel = document.createElement('button');
+                    btnDel.className = 'delete-btn';
+                    btnDel.innerHTML = '&times;';
+                    btnDel.onclick = function() {
+                        eliminarRegistroPase(rutaVal, itemData.indexOriginal);
+                    };
+
+                    itemDiv.appendChild(infoSpan);
+                    itemDiv.appendChild(btnDel);
+                    listaDiv.appendChild(itemDiv);
+                })(j);
+            }
+        }
+
+        function eliminarRegistroPase(nombreRuta, indexOriginal) {
+            if (confirm('¿Eliminar este registro de hora?')) {
+                registros[nombreRuta].splice(indexOriginal, 1);
+                guardarDatos();
+                renderizarReporte();
+                renderizarCuadriculaHorarios();
+                buscarEnCuadricula();
+            }
+        }
+
+        function compartirWhatsApp() {
+            var elFecha = document.getElementById('reporte-fecha');
+            var elRuta = document.getElementById('reporte-ruta-select');
+            var fechaVal = elFecha ? elFecha.value : null;
+            var rutaVal = elRuta ? elRuta.value : null;
+
+            if (!fechaVal || !rutaVal || !registros[rutaVal]) return;
+
+            var msg = "Reporte " + rutaVal + " (" + fechaVal + ")\n\n";
+            var regRuta = registros[rutaVal];
+            
+            for(var i=0; i<regRuta.length; i++) {
+                var d = new Date(regRuta[i].ts);
+                var yyyy = d.getFullYear();
+                var mm = String(d.getMonth() + 1);
+                if (mm.length < 2) mm = '0' + mm;
+                var dd = String(d.getDate());
+                if (dd.length < 2) dd = '0' + dd;
+
+                if ((yyyy + '-' + mm + '-' + dd) === fechaVal) {
+                    var hh = String(d.getHours());
+                    if (hh.length < 2) hh = '0' + hh;
+                    var min = String(d.getMinutes());
+                    if (min.length < 2) min = '0' + min;
+                    var hStr = hh + ':' + min;
+                    var numStr = regRuta[i].numero ? ' - Unidad #' + regRuta[i].numero : '';
+                    msg += "• " + hStr + numStr + "\n";
+                }
+            }
+
+            window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg), '_blank');
+        }
+
+        // Ejecutar inmediatamente al abrir la app
+        cargarFechaActual();
+        renderizarRutas();
+        renderizarCuadriculaHorarios();
+        renderizarOpcionesReportes();
+        setInterval(actualizarRelojes, 1000);
     </script>
 </body>
 </html>
